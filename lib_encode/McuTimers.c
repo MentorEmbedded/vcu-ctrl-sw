@@ -60,6 +60,10 @@
 #define IP_IRQ_CORE3 (1 | 0x1000 << 8)
 #define IP_IRQ_CORE3_ENTROPY (1 | 0x4000 << 8)
 
+#ifdef ANDROID
+#include <utils/Log.h>
+#endif
+
 char* TimerIdToName(uint32_t id)
 {
   switch(id)
@@ -106,7 +110,7 @@ bool McuTimers_Write(FILE* perfsFile, timerData* timerValues)
   }
 
   if(nbSample == MAX_NB_SAMPLE)
-    printf("Mcu Timer buffer was probably corrupted\n");
+    ALOGW("Mcu Timer buffer was probably corrupted\n");
 
   return true;
 }

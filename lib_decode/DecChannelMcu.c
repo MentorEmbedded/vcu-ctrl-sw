@@ -55,6 +55,10 @@
 #include "lib_common/Error.h"
 #include <assert.h>
 
+#ifdef ANDROID
+#include <utils/Log.h>
+#endif
+
 #define DCACHE_OFFSET 0x80000000
 
 /****************************************************************************/
@@ -429,7 +433,7 @@ static AL_ERR DecChannelMcu_ConfigChannel(AL_TIDecChannel* pDecChannel, AL_TDecC
 
   if(chan->fd < 0)
   {
-    printf("Cannot open device file %s: %s\n", deviceFile, strerror(errno));
+    ALOGE("Cannot open device file %s: %s\n", deviceFile, strerror(errno));
     goto fail_open;
   }
 
@@ -505,8 +509,7 @@ static void DecChannelMcu_SearchSC(AL_TIDecChannel* pDecChannel, AL_TScParam* pS
 
   if(pMsg->fd < 0)
   {
-    perror("Cannot open device file");
-    printf("%s\n", deviceFile);
+    ALOGE("Cannot open device file %s", deviceFile);
     goto fail_open;
   }
 
@@ -514,7 +517,7 @@ static void DecChannelMcu_SearchSC(AL_TIDecChannel* pDecChannel, AL_TScParam* pS
 
   if(!PostMessage(pMsg->fd, AL_MCU_SEARCH_START_CODE, &search_msg))
   {
-    perror("Failed to search start code");
+    ALOGE("Failed to search start code");
     goto fail_open;
   }
 

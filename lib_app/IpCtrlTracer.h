@@ -44,6 +44,10 @@
 #include <mutex>
 #include "lib_ip_ctrl/IpCtrlAdapter.h"
 
+#ifdef ANDROID
+#include <utils/Log.h>
+#endif
+
 using namespace std;
 
 class IpCtrlTracer : public IpCtrlAdapter
@@ -59,11 +63,11 @@ public:
     auto const now = timeNow();
     {
       lock_guard<mutex> guard(m_trace);
-      printf("write,");
-      printf("%.3f,", now);
-      printf("0x%X,", uReg);
-      printf("0x%X,", uVal);
-      printf("\n");
+      ALOGI("write,");
+      ALOGI("%.3f,", now);
+      ALOGI("0x%X,", uReg);
+      ALOGI("0x%X,", uVal);
+      ALOGI("\n");
     }
     AL_IpCtrl_WriteRegister(forward, uReg, uVal);
   }
@@ -75,11 +79,11 @@ public:
 
     {
       lock_guard<mutex> guard(m_trace);
-      printf("read,");
-      printf("%.3f,", now);
-      printf("0x%X,", uReg);
-      printf("0x%X,", uVal);
-      printf("\n");
+      ALOGI("read,");
+      ALOGI("%.3f,", now);
+      ALOGI("0x%X,", uReg);
+      ALOGI("0x%X,", uVal);
+      ALOGI("\n");
     }
     return uVal;
   }
@@ -92,10 +96,10 @@ public:
         auto const now = timeNow();
         {
           lock_guard<mutex> guard(m_trace);
-          printf("irq,");
-          printf("%.3f,", now);
-          printf("0x%X,", uNumInt);
-          printf("\n");
+          ALOGI("irq,");
+          ALOGI("%.3f,", now);
+          ALOGI("0x%X,", uNumInt);
+          ALOGI("\n");
         }
 
         if(handler)

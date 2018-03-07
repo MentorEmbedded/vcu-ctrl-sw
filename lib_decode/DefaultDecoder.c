@@ -60,6 +60,9 @@
 #include "lib_parsing/I_PictMngr.h"
 #include "lib_decode/I_DecChannel.h"
 
+#ifdef ANDROID
+#include <utils/Log.h>
+#endif
 
 #define AVC_NAL_HDR_SIZE 4
 #define HEVC_NAL_HDR_SIZE 5
@@ -218,7 +221,7 @@ void AL_Default_Decoder_EndDecoding(void* pUserParam, AL_TDecPicStatus* pStatus)
   ++pCtx->m_iNumFrmBlk2;
 
   if(pStatus->bHanged)
-    printf("***** /!\\ Timeout - resetting the decoder /!\\ *****\n");
+    ALOGE("***** /!\\ Timeout - resetting the decoder /!\\ *****\n");
 
   Rtos_ReleaseMutex(pCtx->m_DecMutex);
 
