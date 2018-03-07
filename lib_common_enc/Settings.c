@@ -57,6 +57,10 @@
 #define HW_IP_BIT_DEPTH 10
 #endif
 
+#ifdef ANDROID
+#include <utils/Log.h>
+#endif
+
 /***************************************************************************/
 static bool AL_sSettings_CheckProfile(AL_EProfile eProfile)
 {
@@ -648,8 +652,8 @@ void AL_Settings_SetDefaults(AL_TEncSettings* pSettings)
 }
 
 /***************************************************************************/
-#define MSG(msg) { if(pOut) fprintf(pOut, msg "\r\n"); }
-
+//#define MSG(msg) { if(pOut) fprintf(pOut, msg "\r\n"); }
+#define MSG(msg) { ALOGI(msg); }
 #define STRINGER(a) # a
 
 /****************************************************************************/
