@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ifeq ($(TARGET_USES_XILINX_VCU),true)
+
 LOCAL_PATH := $(call my-dir)
 
 #######################
@@ -255,3 +257,4 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE := al_encoder
 include $(BUILD_EXECUTABLE)
+endif
