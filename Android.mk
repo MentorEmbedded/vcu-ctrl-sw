@@ -27,8 +27,9 @@ LIB_FPGA_SRC := \
 LIB_APP_SRC := \
 	lib_app/utils.cpp \
 	lib_app/convert.cpp \
-	lib_app/BufPool.c \
+	lib_app/BufPool.cpp \
 	lib_app/BufferMetaFactory.c \
+	lib_app/AllocatorTracker.cpp \
 	lib_app/console_linux.cpp
 
 LIB_CFG_SRC := \
@@ -36,8 +37,10 @@ LIB_CFG_SRC := \
 
 LIB_COMMON_BASE_SRC := \
 	lib_common/Utils.c \
+	lib_common/UtilsQp.c \
 	lib_common/BufCommon.c \
-	lib_common/AllocatorDefault.c
+	lib_common/AllocatorDefault.c \
+	lib_common/ChannelResources.c
 
 LIB_COMMON_SRC := \
 	$(LIB_COMMON_BASE_SRC) \
@@ -47,12 +50,12 @@ LIB_COMMON_SRC := \
 	lib_common/BufferSrcMeta.c \
 	lib_common/BufferCircMeta.c \
 	lib_common/BufferStreamMeta.c \
+	lib_common/BufferPictureMeta.c \
 	lib_common/BufferAccess.c \
-	lib_common/ChannelResources.c \
-	lib_common/StreamBuffer.c \
 	lib_common/Fifo.c \
-	lib_common/FourCC.c \
 	lib_common/AvcLevelsLimit.c \
+	lib_common/StreamBuffer.c \
+	lib_common/FourCC.c
 
 LIB_COMMON_MCU_SRC := \
 	$(LIB_COMMON_BASE_SRC)
@@ -61,8 +64,8 @@ LIB_COMMON_ENC_BASE_SRC := \
 	lib_common_enc/L2PrefetchParam.c \
 	lib_common_enc/EncBuffers.c \
 	lib_common_enc/EncRecBuffer.c \
-	lib_common_enc/EncSize.c \
-	lib_common_enc/IpEncFourCC.c
+	lib_common_enc/IpEncFourCC.c \
+	lib_common_enc/EncSize.c
 
 LIB_COMMON_ENC_SRC := \
 	$(LIB_COMMON_ENC_BASE_SRC) \
@@ -103,7 +106,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/extra/include
 
 CONFIG_H := $(LOCAL_PATH)/include/config.h
-LOCAL_CFLAGS := -DLOG_TAG=\"liballegro_encode\" -std=c11 -include $(CONFIG_H)
+LOCAL_CFLAGS := -DLOG_TAG=\"liballegro_encode\" -include $(CONFIG_H)
 LOCAL_CPPFLAGS += -fexceptions
 
 LIB_ENCODE_SRC := \
@@ -150,7 +153,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/extra/include
 
 CONFIG_H := $(LOCAL_PATH)/include/config.h
-LOCAL_CFLAGS := -DLOG_TAG=\"liballegro_decode\" -std=c11 -include $(CONFIG_H) -Wno-error=pointer-bool-conversion
+LOCAL_CFLAGS := -DLOG_TAG=\"liballegro_decode\" -include $(CONFIG_H) -Wno-error=pointer-bool-conversion
 LOCAL_CPPFLAGS += -fexceptions
 
 LIB_COMMON_DEC_BASE_SRC := \
@@ -164,14 +167,13 @@ LIB_COMMON_DEC_SRC := \
 
 LIB_PARSING_SRC := \
 	lib_parsing/common_syntax.c \
+	lib_parsing/AvcParser.c \
+	lib_parsing/HevcParser.c \
 	lib_parsing/SliceHdrParsing.c \
 	lib_parsing/DPB.c \
 	lib_parsing/I_PictMngr.c \
 	lib_parsing/Avc_PictMngr.c \
-	lib_parsing/AvcParser.c \
 	lib_parsing/Hevc_PictMngr.c \
-	lib_parsing/HevcParser.c \
-	lib_parsing/VideoConfiguration.c \
 	lib_parsing/Concealment.c
 
 LIB_DECODE_SRC := \
@@ -212,7 +214,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/extra/include
 
 CONFIG_H := $(LOCAL_PATH)/include/config.h
-LOCAL_CFLAGS := -DLOG_TAG=\"al_decoder\" -std=c11 -include $(CONFIG_H)
+LOCAL_CFLAGS := -DLOG_TAG=\"al_decoder\" -include $(CONFIG_H)
 LOCAL_CPPFLAGS += -fexceptions
 
 LOCAL_SRC_FILES := \
@@ -239,7 +241,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/extra/include
 
 CONFIG_H := $(LOCAL_PATH)/include/config.h
-LOCAL_CFLAGS := -DLOG_TAG=\"al_encoder\" -std=c11 -include $(CONFIG_H)
+LOCAL_CFLAGS := -DLOG_TAG=\"al_encoder\" -include $(CONFIG_H)
 LOCAL_CPPFLAGS += -fexceptions
 
 LOCAL_SRC_FILES := \
@@ -250,7 +252,10 @@ LOCAL_SRC_FILES := \
 	exe_encoder/sink_frame_writer.cpp \
 	exe_encoder/sink_md5.cpp \
 	exe_encoder/MD5.cpp \
+	exe_encoder/ROIMngr.cpp \
+	exe_encoder/EncCmdMngr.cpp \
 	exe_encoder/QPGenerator.cpp \
+	exe_encoder/CommandsSender.cpp\
 	$(LIB_CFG_SRC) \
 	$(LIB_CONV_SRC) \
 	$(LIB_APP_SRC)
