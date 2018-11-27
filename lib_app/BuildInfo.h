@@ -77,8 +77,9 @@ struct BuildInfoDisplay
 
   void displayTimeOfBuild()
   {
+#ifndef ANDROID
     LogInfo("Compiled on %s at %s", __DATE__, __TIME__);
-
+#endif
     if(strcmp(scmRevision, "0") && strcmp(scmRevision, ""))
       LogInfo(" from GIT revision %s", scmRevision);
 

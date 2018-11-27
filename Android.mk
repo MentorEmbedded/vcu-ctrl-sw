@@ -35,15 +35,11 @@ LIB_APP_SRC := \
 LIB_CFG_SRC := \
 	lib_cfg/CfgParser.cpp
 
-LIB_COMMON_BASE_SRC := \
+LIB_COMMON_SRC := \
 	lib_common/Utils.c \
-	lib_common/UtilsQp.c \
 	lib_common/BufCommon.c \
 	lib_common/AllocatorDefault.c \
-	lib_common/ChannelResources.c
-
-LIB_COMMON_SRC := \
-	$(LIB_COMMON_BASE_SRC) \
+	lib_common/ChannelResources.c \
 	lib_common/MemDesc.c \
 	lib_common/HwScalingList.c \
 	lib_common/BufferAPI.c \
@@ -51,39 +47,47 @@ LIB_COMMON_SRC := \
 	lib_common/BufferCircMeta.c \
 	lib_common/BufferStreamMeta.c \
 	lib_common/BufferPictureMeta.c \
-	lib_common/BufferAccess.c \
+	lib_common/BufferLookAheadMeta.c \
 	lib_common/Fifo.c \
 	lib_common/AvcLevelsLimit.c \
 	lib_common/StreamBuffer.c \
-	lib_common/FourCC.c
+	lib_common/FourCC.c \
+	lib_common/HardwareDriver.c
 
 LIB_COMMON_MCU_SRC := \
 	$(LIB_COMMON_BASE_SRC)
 
-LIB_COMMON_ENC_BASE_SRC := \
-	lib_common_enc/L2PrefetchParam.c \
+LIB_COMMON_ENC_SRC := \
 	lib_common_enc/EncBuffers.c \
 	lib_common_enc/EncRecBuffer.c \
 	lib_common_enc/IpEncFourCC.c \
-	lib_common_enc/EncSize.c
-
-LIB_COMMON_ENC_SRC := \
-	$(LIB_COMMON_ENC_BASE_SRC) \
+	lib_common_enc/EncSize.c \
 	lib_common_enc/EncHwScalingList.c \
-	lib_common_enc/Settings.c \
+	lib_common_enc/Settings.c
 
-LIB_COMMON_ENC_MCU_SRC := \
-	$(LIB_COMMON_ENC_BASE_SRC)
+LIB_COMMON_DEC_SRC := \
+	lib_common_dec/DecBuffers.c \
+	lib_common_dec/DecHwScalingList.c \
+	lib_common_dec/DecInfo.c \
+	lib_common_dec/RbspParser.c \
+	lib_common_dec/IpDecFourCC.c
+
+LIB_PARSING_SRC:= \
+	lib_parsing/common_syntax.c \
+	lib_parsing/AvcParser.c \
+	lib_parsing/HevcParser.c \
+	lib_parsing/SliceHdrParsing.c \
+	lib_parsing/DPB.c \
+	lib_parsing/I_PictMngr.c \
+	lib_parsing/Avc_PictMngr.c \
+	lib_parsing/Hevc_PictMngr.c \
+	lib_parsing/Concealment.c
 
 LIB_CONV_SRC := \
 	lib_conv_yuv/AL_NvxConvert.cpp
 
 LIB_RTOS_SRC := \
 	lib_rtos/lib_rtos.c
-
-LIB_PREPROCESS_SRC := \
-	lib_preprocess/ChooseLda.c \
-	lib_preprocess/LoadLda.c
 
 LIB_BITSTREAM_SRC := \
 	lib_bitstream/BitStreamLite.c \
@@ -107,36 +111,49 @@ LOCAL_C_INCLUDES := \
 
 CONFIG_H := $(LOCAL_PATH)/include/config.h
 LOCAL_CFLAGS := -DLOG_TAG=\"liballegro_encode\" -include $(CONFIG_H)
-LOCAL_CPPFLAGS += -fexceptions
+LOCAL_CFLAGS += \
+	-std=gnu99 \
+	-Wno-typedef-redefinition \
+	-Wno-unused-parameter \
+	-Wno-missing-field-initializers \
+	-Wno-missing-braces \
+	-Wno-constant-conversion
 
 LIB_ENCODE_SRC := \
-	lib_encode/SchedulerMcu.c \
-	lib_encode/driverDataConversions.c \
-	lib_encode/McuTimers.c \
 	lib_encode/Com_Encoder.c \
-	lib_encode/SourceBufferChecker.c \
 	lib_encode/HEVC_Encoder.c \
-	lib_encode/AVC_Encoder.c \
-	lib_encode/IP_Utils.c \
-	lib_encode/IP_Stream.c \
-	lib_encode/lib_encoder.c \
-	lib_encode/ISchedulerCommon.c \
-	lib_encode/hardwareDriver.c \
 	lib_encode/HEVC_Sections.c \
+	lib_encode/AVC_Encoder.c \
 	lib_encode/AVC_Sections.c \
 	lib_encode/Sections.c \
 	lib_encode/NalWriters.c \
-	lib_encode/IScheduler.c
+	lib_encode/IP_Utils.c \
+	lib_encode/IP_Stream.c \
+	lib_encode/lib_encoder.c \
+	lib_encode/SourceBufferChecker.c \
+	lib_encode/LoadLda.c \
+	lib_encode/JpegTables.c
+
+ISCHEDULER_SRC := \
+	lib_encode/DriverDataConversions.c \
+	lib_encode/ISchedulerCommon.c \
+	lib_encode/IScheduler.c \
+	lib_encode/SchedulerMcu.c
+
+LIB_ISCHEDULER_ENC_SRC := \
+	$(ISCHEDULER_SRC) \
+	$(LIB_BITSTREAM_SRC)
 
 LOCAL_SRC_FILES := \
 	$(LIB_FPGA_SRC) \
 	$(LIB_COMMON_SRC) \
 	$(LIB_COMMON_ENC_SRC) \
 	$(LIB_RTOS_SRC) \
+	$(LIB_ISCHEDULER_ENC_SRC) \
 	$(LIB_ENCODE_SRC) \
-	$(LIB_BITSTREAM_SRC) \
-	$(LIB_PREPROCESS_SRC)
+	$(LIB_PERFS_SRC)
 
+LOCAL_VENDOR_MODULE := true
 LOCAL_MODULE := liballegro_encode
 include $(BUILD_SHARED_LIBRARY)
 
@@ -153,28 +170,13 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/extra/include
 
 CONFIG_H := $(LOCAL_PATH)/include/config.h
-LOCAL_CFLAGS := -DLOG_TAG=\"liballegro_decode\" -include $(CONFIG_H) -Wno-error=pointer-bool-conversion
-LOCAL_CPPFLAGS += -fexceptions
-
-LIB_COMMON_DEC_BASE_SRC := \
-	lib_common_dec/DecBuffers.c
-
-LIB_COMMON_DEC_SRC := \
-	$(LIB_COMMON_DEC_BASE_SRC) \
-	lib_common_dec/DecHwScalingList.c \
-	lib_common_dec/DecInfo.c \
-	lib_common_dec/RbspParser.c \
-
-LIB_PARSING_SRC := \
-	lib_parsing/common_syntax.c \
-	lib_parsing/AvcParser.c \
-	lib_parsing/HevcParser.c \
-	lib_parsing/SliceHdrParsing.c \
-	lib_parsing/DPB.c \
-	lib_parsing/I_PictMngr.c \
-	lib_parsing/Avc_PictMngr.c \
-	lib_parsing/Hevc_PictMngr.c \
-	lib_parsing/Concealment.c
+LOCAL_CFLAGS := -DLOG_TAG=\"liballegro_decode\" -include $(CONFIG_H)
+LOCAL_CFLAGS += \
+	-std=gnu99 \
+	-Wno-typedef-redefinition \
+	-Wno-missing-field-initializers \
+	-Wno-missing-braces \
+	-Wno-pointer-bool-conversion
 
 LIB_DECODE_SRC := \
 	lib_decode/DecChannelMcu.c \
@@ -198,6 +200,7 @@ LOCAL_SRC_FILES := \
 	$(LIB_PARSING_SRC) \
 	$(LIB_DECODE_SRC)
 
+LOCAL_VENDOR_MODULE := true
 LOCAL_MODULE := liballegro_decode
 include $(BUILD_SHARED_LIBRARY)
 
@@ -215,7 +218,12 @@ LOCAL_C_INCLUDES := \
 
 CONFIG_H := $(LOCAL_PATH)/include/config.h
 LOCAL_CFLAGS := -DLOG_TAG=\"al_decoder\" -include $(CONFIG_H)
-LOCAL_CPPFLAGS += -fexceptions
+LOCAL_CFLAGS += \
+	-DAL_COMPIL_FLAGS='"$(CFLAGS)"' \
+	-DHAS_COMPIL_FLAGS=1 \
+	-DSVN_REV='"Unversioned"'
+
+LOCAL_CPPFLAGS += -std=c++11 -fexceptions
 
 LOCAL_SRC_FILES := \
 	exe_decoder/main.cpp \
@@ -225,6 +233,7 @@ LOCAL_SRC_FILES := \
 	exe_decoder/Conversion.cpp \
 	$(LIB_APP_SRC)
 
+LOCAL_VENDOR_MODULE := true
 LOCAL_MODULE := al_decoder
 include $(BUILD_EXECUTABLE)
 
@@ -242,24 +251,38 @@ LOCAL_C_INCLUDES := \
 
 CONFIG_H := $(LOCAL_PATH)/include/config.h
 LOCAL_CFLAGS := -DLOG_TAG=\"al_encoder\" -include $(CONFIG_H)
-LOCAL_CPPFLAGS += -fexceptions
+LOCAL_CFLAGS += \
+	-DAL_COMPIL_FLAGS='"$(CFLAGS)"' \
+	-DHAS_COMPIL_FLAGS=1 \
+	-DSVN_REV='"Unversioned"'
+
+LOCAL_CPPFLAGS += -std=c++11 -fexceptions
+
+PARSER_SRCS := \
+  exe_encoder/CfgParser.cpp \
+  exe_encoder/Parser.cpp \
+  exe_encoder/Tokenizer.cpp
 
 LOCAL_SRC_FILES := \
-	exe_encoder/CodecUtils.cpp \
-	exe_encoder/IpDevice.cpp \
-	exe_encoder/main.cpp \
-	exe_encoder/sink_bitstream_writer.cpp \
-	exe_encoder/sink_frame_writer.cpp \
-	exe_encoder/sink_md5.cpp \
-	exe_encoder/MD5.cpp \
-	exe_encoder/ROIMngr.cpp \
-	exe_encoder/EncCmdMngr.cpp \
-	exe_encoder/QPGenerator.cpp \
-	exe_encoder/CommandsSender.cpp\
-	$(LIB_CFG_SRC) \
-	$(LIB_CONV_SRC) \
-	$(LIB_APP_SRC)
+  exe_encoder/CodecUtils.cpp \
+  exe_encoder/FileUtils.cpp \
+  exe_encoder/IpDevice.cpp \
+  exe_encoder/container.cpp \
+  exe_encoder/main.cpp \
+  exe_encoder/sink_bitstream_writer.cpp \
+  exe_encoder/sink_frame_writer.cpp \
+  exe_encoder/sink_md5.cpp \
+  exe_encoder/MD5.cpp \
+  exe_encoder/ROIMngr.cpp \
+  exe_encoder/EncCmdMngr.cpp \
+  exe_encoder/QPGenerator.cpp \
+  exe_encoder/CommandsSender.cpp \
+  exe_encoder/TwoPassMngr.cpp \
+  $(PARSER_SRCS) \
+  $(LIB_CONV_SRC) \
+  $(LIB_APP_SRC)
 
+LOCAL_VENDOR_MODULE := true
 LOCAL_MODULE := al_encoder
 include $(BUILD_EXECUTABLE)
 endif
