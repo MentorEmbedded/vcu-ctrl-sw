@@ -488,7 +488,7 @@ unsigned int ReadNextFrameMV(std::ifstream& File, int& iX, int& iY)
     }
     ss >> sVal;
   }
-  while(!ss.rdbuf()->in_avail() == 0);
+  while(!(ss.rdbuf()->in_avail() == 0));
 
   if(File.fail())
     return UINT_MAX;

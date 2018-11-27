@@ -57,8 +57,9 @@ struct BuildInfoDisplay
 
   void displayTimeOfBuild()
   {
+#ifndef ANDROID
     Message("Compiled on %s at %s", __DATE__, __TIME__);
-
+#endif
     if(strcmp(svnRevision, "0") && strcmp(svnRevision, ""))
       Message(" from SVN revision %s.\n", svnRevision);
   }
