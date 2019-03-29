@@ -51,6 +51,7 @@
 #include "NalUnitParser.h"
 
 #include "lib_common/Error.h"
+#include "lib_common/Log.h"
 #include "lib_common/StreamBuffer.h"
 #include "lib_common/Utils.h"
 #include "lib_common/BufferSrcMeta.h"
@@ -230,7 +231,7 @@ void AL_Default_Decoder_EndDecoding(void* pUserParam, AL_TDecPicStatus* pStatus)
   ++pCtx->iNumFrmBlk2;
 
   if(pStatus->bHanged)
-    printf("***** /!\\ Timeout - resetting the decoder /!\\ *****\n");
+    LOGE("***** /!\\ Timeout - resetting the decoder /!\\ *****\n");
 
   Rtos_ReleaseMutex(pCtx->DecMutex);
 

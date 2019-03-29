@@ -54,6 +54,7 @@
 #include "lib_common_enc/EncBuffers.h"
 #include "lib_common_enc/EncSize.h"
 #include "lib_common/SEI.h"
+#include "lib_common/Log.h"
 
 /***************************************************************************/
 static bool AL_sSettings_CheckProfile(AL_EProfile eProfile)
@@ -672,7 +673,7 @@ void AL_Settings_SetDefaults(AL_TEncSettings* pSettings)
 }
 
 /***************************************************************************/
-#define MSG(msg) { if(pOut) fprintf(pOut, msg "\r\n"); }
+#define MSG(msg) { LOGW(msg); }
 
 /****************************************************************************/
 static void AL_sCheckRange(int16_t* pRange, const int16_t iMaxRange, FILE* pOut)
@@ -970,7 +971,7 @@ static uint32_t GetHevcMaxTileRow(uint8_t uLevel)
     return 22;
     break;
   default:
-    printf("level:%d\n", uLevel);
+    LOGW("level:%d\n", uLevel);
     assert(0);
     return 1;
   }

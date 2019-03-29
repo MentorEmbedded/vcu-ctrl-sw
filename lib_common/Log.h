@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* Copyright (C) 2018 Allegro DVT2.  All rights reserved.
+* Copyright (C) 2017 Allegro DVT2.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -34,27 +34,50 @@
 * this Software without prior written authorization from Allegro DVT2.
 *
 ******************************************************************************/
+#ifndef _VCU_CTRL_SW_LOG_
+#define _VCU_CTRL_SW_LOG_
 
+#define LOG_LEVEL 4
+#define VERBOSE 0
+
+#ifndef ANDROID
 #include <stdio.h>
-#include "lib_rtos/types.h"
-#include "lib_fpga/Board.h"
-#include "lib_common/Allocator.h"
-#include "lib_common/Log.h"
+#define LOG(level, err, fmt, ...) \
+  do { \
+    if(level <= LOG_LEVEL) \
+    { \
+      if(VERBOSE) \
+      { \
+        fprintf(stderr, "[" err "] %s:%d [%s]: " fmt "\n", __FILE__, __LINE__, __func__, ## __VA_ARGS__); \
+      } \
+      else \
+      { \
+        fprintf(stderr, "[" err "] [%s]: " fmt "\n", __func__, ## __VA_ARGS__); \
+      } \
+    } \
+  } while(0)
 
-AL_TIpCtrl* AL_Board_Create(const char* deviceFile, uint32_t uIntReg, uint32_t uMskReg, uint32_t uIntMask)
-{
-  (void)deviceFile;
-  (void)uIntReg;
-  (void)uMskReg;
-  (void)uIntMask;
-  LOGE("No support for FPGA board on this platform\n");
-  return NULL;
-}
+#if VERBOSE
+#define LOGV(fmt, ...) LOG(10, "V", fmt, ## __VA_ARGS__)
+#else
+#define LOGV(fmt, ...) ((void)0)
+#endif
+#define LOGI(fmt, ...) LOG(5, "I", fmt, ## __VA_ARGS__)
+#define LOGW(fmt, ...) LOG(3, "W", fmt, ## __VA_ARGS__)
+#define LOGE(fmt, ...) LOG(1, "E", fmt, ## __VA_ARGS__)
+#else /* ANDROID */
 
-AL_TAllocator* AL_DmaAlloc_Create(const char* deviceFile)
-{
-  (void)deviceFile;
-  LOGE("No support for FPGA board on this platform\n");
-  return NULL;
-}
+#if VERBOSE
+/* LOG_NDEBUG should be 0 to make LOGV working */
+#define LOG_NDEBUG 0
+#endif /* VERBOSE */
+#include <utils/Log.h>
 
+#define LOGV(fmt, ...) ALOGV(fmt, ## __VA_ARGS__)
+#define LOGI(fmt, ...) ALOGI(fmt, ## __VA_ARGS__)
+#define LOGW(fmt, ...) ALOGW(fmt, ## __VA_ARGS__)
+#define LOGE(fmt, ...) ALOGE(fmt, ## __VA_ARGS__)
+
+#endif /* ANDROID */
+
+#endif /* _VCU_CTRL_SW_LOG_ */

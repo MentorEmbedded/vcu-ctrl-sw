@@ -39,6 +39,7 @@
 #include "NalWriters.h"
 
 #include <lib_common/SEI.h>
+#include <lib_common/Log.h>
 
 #include <assert.h>
 #include <stdio.h>
@@ -225,7 +226,7 @@ void GenerateSections(IRbspWriter* writer, Nuts nuts, const NalsData* nalsData, 
     int iWritten = (AL_BitStreamLite_GetBitsCount(&bs) - iBookmark) / 8;
 
     if(iWritten != pPicStatus->iFiller)
-      printf("[WARNING] Filler data (%i) doesn't fit in the current buffer. Clip it to %i !\n", pPicStatus->iFiller, iWritten);
+      LOGW("[WARNING] Filler data (%i) doesn't fit in the current buffer. Clip it to %i !\n", pPicStatus->iFiller, iWritten);
     AddSection(pMetaData, offset, iWritten, 0);
   }
 

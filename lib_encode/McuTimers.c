@@ -106,7 +106,7 @@ bool McuTimers_Write(FILE* perfsFile, timerData* timerValues)
   }
 
   if(nbSample == MAX_NB_SAMPLE)
-    printf("Mcu Timer buffer was probably corrupted\n");
+    LOGW("Mcu Timer buffer was probably corrupted\n");
 
   return true;
 }

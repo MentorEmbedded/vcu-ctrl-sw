@@ -43,6 +43,7 @@
 #include <iostream>
 #include <mutex>
 #include "lib_ip_ctrl/IpCtrlAdapter.h"
+#include "lib_common/Log.h"
 
 using namespace std;
 
@@ -59,11 +60,11 @@ public:
     auto const now = timeNow();
     {
       lock_guard<mutex> guard(m_trace);
-      printf("write,");
-      printf("%.3f,", now);
-      printf("0x%X,", uReg);
-      printf("0x%X,", uVal);
-      printf("\n");
+      LOGI("write,");
+      LOGI("%.3f,", now);
+      LOGI("0x%X,", uReg);
+      LOGI("0x%X,", uVal);
+      LOGI("\n");
     }
     AL_IpCtrl_WriteRegister(forward, uReg, uVal);
   }
@@ -75,11 +76,11 @@ public:
 
     {
       lock_guard<mutex> guard(m_trace);
-      printf("read,");
-      printf("%.3f,", now);
-      printf("0x%X,", uReg);
-      printf("0x%X,", uVal);
-      printf("\n");
+      LOGI("read,");
+      LOGI("%.3f,", now);
+      LOGI("0x%X,", uReg);
+      LOGI("0x%X,", uVal);
+      LOGI("\n");
     }
     return uVal;
   }
@@ -92,10 +93,10 @@ public:
         auto const now = timeNow();
         {
           lock_guard<mutex> guard(m_trace);
-          printf("irq,");
-          printf("%.3f,", now);
-          printf("0x%X,", uNumInt);
-          printf("\n");
+          LOGI("irq,");
+          LOGI("%.3f,", now);
+          LOGI("0x%X,", uNumInt);
+          LOGI("\n");
         }
 
         if(handler)

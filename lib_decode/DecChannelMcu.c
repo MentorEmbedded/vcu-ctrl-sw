@@ -49,6 +49,7 @@
 #include "allegro_ioctl_mcu_dec.h"
 #include "lib_common/List.h"
 #include "lib_common/Error.h"
+#include "lib_common/Log.h"
 
 #define DCACHE_OFFSET 0x80000000
 
@@ -383,7 +384,7 @@ static AL_ERR DecChannelMcu_ConfigChannel(AL_TIDecChannel* pDecChannel, AL_TDecC
 
   if(chan->fd < 0)
   {
-    fprintf(stderr, "Cannot open device file %s; %s", deviceFile, strerror(errno));
+    LOGE("Cannot open device file %s; %s", deviceFile, strerror(errno));
     goto fail_open;
   }
 
@@ -464,7 +465,7 @@ static void DecChannelMcu_SearchSC(AL_TIDecChannel* pDecChannel, AL_TScParam* pS
 
   if(pMsg->fd < 0)
   {
-    fprintf(stderr, "Cannot open device file %s: %s\n", deviceFile, strerror(errno));
+    LOGE("Cannot open device file %s: %s\n", deviceFile, strerror(errno));
     goto fail_open;
   }
 
