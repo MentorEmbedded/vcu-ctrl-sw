@@ -102,8 +102,7 @@ static void AntiEmul(AL_TBitStreamLite* pStream, uint8_t const* pData, int iNumB
 
 static void writeStartCode(AL_TBitStreamLite* pStream, int nut)
 {
-#if !__ANDROID_API__
-
+#ifndef ANDROID
   // If this is a SPS, a PPS, an Access Unit or a SEI, add an extra zero_byte (spec. B.1.2).
   if((nut >= AL_AVC_NUT_PREFIX_SEI && nut <= AL_AVC_NUT_SUB_SPS) ||
      (nut >= AL_HEVC_NUT_VPS && nut <= AL_HEVC_NUT_SUFFIX_SEI))

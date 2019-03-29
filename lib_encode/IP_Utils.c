@@ -711,7 +711,7 @@ void AL_AVC_GenerateSPS(AL_TSps* pISPS, AL_TEncSettings const* pSettings, int iM
                                || (pSPS->frame_crop_bottom_offset > 0)) ? 1 : 0;
 
   pSPS->vui_parameters_present_flag = 1;
-#if __ANDROID_API__
+#ifdef ANDROID
   pSPS->vui_parameters_present_flag = 0;
 #endif
 
@@ -950,7 +950,7 @@ void AL_HEVC_GenerateSPS(AL_TSps* pISPS, AL_TEncSettings const* pSettings, AL_TE
   pSPS->sps_temporal_mvp_enabled_flag = 1;
   pSPS->strong_intra_smoothing_enabled_flag = (pChParam->uMaxCuSize > 4) ? 1 : 0;
 
-#if __ANDROID_API__
+#ifdef ANDROID
   pSPS->vui_parameters_present_flag = 0;
 #endif
 
