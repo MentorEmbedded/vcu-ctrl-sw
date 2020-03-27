@@ -28,14 +28,15 @@ LIB_APP_SRC := \
 	lib_app/utils.cpp \
 	lib_app/convert.cpp \
 	lib_app/BufPool.cpp \
-	lib_app/BufferMetaFactory.c \
 	lib_app/AllocatorTracker.cpp \
-	lib_app/console_linux.cpp
+	lib_app/console_linux.cpp \
+	lib_app/plateform_linux.cpp
 
-LIB_CFG_SRC := \
-	lib_cfg/CfgParser.cpp
+LIB_CFG_PARSING_SRC := \
+	lib_cfg_parsing/Parser.cpp \
+	lib_cfg_parsing/Tokenizer.cpp
 
-LIB_COMMON_SRC := \
+LIB_COMMON_SRC:= \
 	lib_common/Utils.c \
 	lib_common/BufCommon.c \
 	lib_common/AllocatorDefault.c \
@@ -48,11 +49,16 @@ LIB_COMMON_SRC := \
 	lib_common/BufferStreamMeta.c \
 	lib_common/BufferPictureMeta.c \
 	lib_common/BufferLookAheadMeta.c \
+	lib_common/BufferBufHandleMeta.c \
+	lib_common/BufferSeiMeta.c \
 	lib_common/Fifo.c \
+	lib_common/LevelLimit.c \
 	lib_common/AvcLevelsLimit.c \
+	lib_common/HevcLevelsLimit.c \
 	lib_common/StreamBuffer.c \
 	lib_common/FourCC.c \
-	lib_common/HardwareDriver.c
+	lib_common/HardwareDriver.c \
+	lib_common/HDR.c
 
 LIB_COMMON_MCU_SRC := \
 	$(LIB_COMMON_BASE_SRC)
@@ -63,14 +69,17 @@ LIB_COMMON_ENC_SRC := \
 	lib_common_enc/IpEncFourCC.c \
 	lib_common_enc/EncSize.c \
 	lib_common_enc/EncHwScalingList.c \
-	lib_common_enc/Settings.c
+	lib_common_enc/Settings.c \
+	lib_common_enc/DPBConstraints.c \
+	lib_common_enc/ParamConstraints.c
 
 LIB_COMMON_DEC_SRC := \
 	lib_common_dec/DecBuffers.c \
-	lib_common_dec/DecHwScalingList.c \
 	lib_common_dec/DecInfo.c \
 	lib_common_dec/RbspParser.c \
-	lib_common_dec/IpDecFourCC.c
+	lib_common_dec/IpDecFourCC.c \
+	lib_common_dec/DecHwScalingList.c \
+	lib_common_dec/HDRMeta.c
 
 LIB_PARSING_SRC:= \
 	lib_parsing/common_syntax.c \
@@ -92,6 +101,7 @@ LIB_RTOS_SRC := \
 LIB_BITSTREAM_SRC := \
 	lib_bitstream/BitStreamLite.c \
 	lib_bitstream/RbspEncod.c \
+	lib_bitstream/Cabac.c \
 	lib_bitstream/HEVC_RbspEncod.c \
 	lib_bitstream/HEVC_SkippedPict.c \
 	lib_bitstream/AVC_RbspEncod.c \
@@ -132,7 +142,6 @@ LIB_ENCODE_SRC := \
 	lib_encode/lib_encoder.c \
 	lib_encode/SourceBufferChecker.c \
 	lib_encode/LoadLda.c \
-	lib_encode/JpegTables.c
 
 ISCHEDULER_SRC := \
 	lib_encode/DriverDataConversions.c \
@@ -142,7 +151,11 @@ ISCHEDULER_SRC := \
 
 LIB_ISCHEDULER_ENC_SRC := \
 	$(ISCHEDULER_SRC) \
-	$(LIB_BITSTREAM_SRC)
+	$(LIB_BITSTREAM_SRC) \
+	$(LIB_RATECTRL_SRC) \
+	$(LIB_BUF_MNGT_SRC) \
+	$(LIB_SCHEDULER_SRC) \
+	$(LIB_SCHEDULER_ENC_SRC)
 
 LOCAL_SRC_FILES := \
 	$(LIB_FPGA_SRC) \
@@ -179,18 +192,19 @@ LOCAL_CFLAGS += \
 	-Wno-pointer-bool-conversion
 
 LIB_DECODE_SRC := \
-	lib_decode/DecChannelMcu.c \
 	lib_decode/NalUnitParser.c \
+	lib_decode/NalDecoder.c \
 	lib_decode/HevcDecoder.c \
 	lib_decode/AvcDecoder.c \
-	lib_decode/NalDecoder.c \
 	lib_decode/FrameParam.c \
 	lib_decode/SliceDataParsing.c \
 	lib_decode/DefaultDecoder.c \
 	lib_decode/lib_decode.c \
-	lib_decode/BufferFeeder.c \
+	lib_decode/UnsplitBufferFeeder.c \
 	lib_decode/Patchworker.c \
-	lib_decode/DecoderFeeder.c
+	lib_decode/DecoderFeeder.c \
+	lib_decode/SplitBufferFeeder.c \
+	lib_decode/DecChannelMcu.c
 
 LOCAL_SRC_FILES := \
 	$(LIB_RTOS_SRC) \
@@ -231,6 +245,7 @@ LOCAL_SRC_FILES := \
 	exe_decoder/IpDevice.cpp \
 	exe_decoder/CodecUtils.cpp \
 	exe_decoder/Conversion.cpp \
+	exe_decoder/InputLoader.cpp \
 	$(LIB_APP_SRC)
 
 LOCAL_VENDOR_MODULE := true
@@ -259,28 +274,30 @@ LOCAL_CFLAGS += \
 LOCAL_CPPFLAGS += -std=c++11 -fexceptions
 
 PARSER_SRCS := \
-  exe_encoder/CfgParser.cpp \
-  exe_encoder/Parser.cpp \
-  exe_encoder/Tokenizer.cpp
+	exe_encoder/CfgParser.cpp \
+	$(LIB_CFG_PARSING_SRC)
 
 LOCAL_SRC_FILES := \
-  exe_encoder/CodecUtils.cpp \
-  exe_encoder/FileUtils.cpp \
-  exe_encoder/IpDevice.cpp \
-  exe_encoder/container.cpp \
-  exe_encoder/main.cpp \
-  exe_encoder/sink_bitstream_writer.cpp \
-  exe_encoder/sink_frame_writer.cpp \
-  exe_encoder/sink_md5.cpp \
-  exe_encoder/MD5.cpp \
-  exe_encoder/ROIMngr.cpp \
-  exe_encoder/EncCmdMngr.cpp \
-  exe_encoder/QPGenerator.cpp \
-  exe_encoder/CommandsSender.cpp \
-  exe_encoder/TwoPassMngr.cpp \
-  $(PARSER_SRCS) \
-  $(LIB_CONV_SRC) \
-  $(LIB_APP_SRC)
+	exe_encoder/CodecUtils.cpp \
+	exe_encoder/YuvIO.cpp \
+	exe_encoder/FileUtils.cpp \
+	exe_encoder/IpDevice.cpp \
+	exe_encoder/container.cpp \
+	exe_encoder/main.cpp \
+	exe_encoder/sink_bitstream_writer.cpp \
+	exe_encoder/sink_bitrate.cpp \
+	exe_encoder/sink_frame_writer.cpp \
+	exe_encoder/sink_md5.cpp \
+	exe_encoder/MD5.cpp \
+	exe_encoder/EncCmdMngr.cpp \
+	exe_encoder/QPGenerator.cpp \
+	exe_encoder/CommandsSender.cpp \
+	exe_encoder/TwoPassMngr.cpp \
+	exe_encoder/ROIMngr.cpp \
+	exe_encoder/HDRParser.cpp \
+	$(PARSER_SRCS) \
+	$(LIB_CONV_SRC) \
+	$(LIB_APP_SRC)
 
 LOCAL_VENDOR_MODULE := true
 LOCAL_MODULE := al_encoder
